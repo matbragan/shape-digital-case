@@ -1,5 +1,28 @@
+"""HTML report implementation using Template Method pattern."""
 
-            
+from datetime import datetime
+
+import pandas as pd
+
+
+class HtmlReport():
+    """HTML report generator for failure analysis results."""
+
+    def __init__(self, analysis: dict):
+        self.analysis = analysis
+
+    def generate(self) -> str:
+        """Generate the HTML report."""
+        return f"""
+            {self._generate_header()}
+            {self._generate_introduction()}
+            {self._generate_analysis()}
+            {self._generate_footer()}
+        """
+    
+    def _generate_header(self) -> str:
+        """Generate the HTML header with styles."""
+        return """
         <!DOCTYPE html>
         <html lang="en">
         <head>
@@ -283,8 +306,11 @@
                     <button class="nav-tab active" onclick="showPage('intro')">Introduction</button>
                     <button class="nav-tab" onclick="showPage('analysis')">Analysis Report</button>
                 </div>
+    """
     
-            
+    def _generate_introduction(self) -> str:
+        """Generate the introduction section."""
+        return """
         <!-- Introduction Page -->
         <div id="intro-page" class="page active">
             <div class="intro-section">
@@ -332,7 +358,7 @@
                     <div class="code-snippet">
                         import re<br>
                         # Pattern matching for log file parsing<br>
-                        regex = re.compile(r"^\[(\d{4}[-/]\d{1,2}[-/]\d{1,2}...)\]	(\w+)	sensor\[(\d+)\]:	...")
+                        regex = re.compile(r"^\[(\d{4}[-/]\d{1,2}[-/]\d{1,2}...)\]\t(\w+)\tsensor\[(\d+)\]:\t...")
                     </div>
                 </div>
                 
@@ -412,538 +438,113 @@
                 </ol>
             </div>
         </div>
-    
-            
-        <!-- Analysis Report Page -->
-            <div id="analysis-page" class="page">
-                <!-- Question 1 -->
-            <div class="question">
-                <h2>1. How many equipment failures happened?</h2>
-                <div class="answer">
-                    <div class="answer-numbers-container">
-                        <div class="answer-number-box">
-                            <div class="answer-number">4,749,474</div>
-                            <div class="answer-number-label">Total failures</div>
-                        </div>
-                        <div class="answer-number-box">
-                            <div class="answer-number">4,740,289</div>
-                            <div class="answer-number-label">Total equipment failures<br>(unique events per equipment and timestamp)</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-                <!-- Question 2 -->
-            <div class="question">
-                <h2>2. Which piece of equipment had most failures?</h2>
-                <div class="answer">
-                    <table border="1" class="dataframe" id="q2-table">
-  <thead>
-    <tr style="text-align: right;">
-      <th>equipment_id</th>
-      <th>equipment_name</th>
-      <th>failures</th>
-      <th>percentage</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>14</td>
-      <td>2C195700</td>
-      <td>343141</td>
-      <td>7.24%</td>
-    </tr>
-    <tr>
-      <td>6</td>
-      <td>9AD15F7E</td>
-      <td>342846</td>
-      <td>7.23%</td>
-    </tr>
-    <tr>
-      <td>10</td>
-      <td>98B84035</td>
-      <td>342187</td>
-      <td>7.22%</td>
-    </tr>
-    <tr>
-      <td>5</td>
-      <td>78FFAD0C</td>
-      <td>340382</td>
-      <td>7.18%</td>
-    </tr>
-    <tr>
-      <td>13</td>
-      <td>4E834E81</td>
-      <td>339925</td>
-      <td>7.17%</td>
-    </tr>
-    <tr>
-      <td>2</td>
-      <td>43B81579</td>
-      <td>339524</td>
-      <td>7.16%</td>
-    </tr>
-    <tr>
-      <td>3</td>
-      <td>E1AD07D4</td>
-      <td>339506</td>
-      <td>7.16%</td>
-    </tr>
-    <tr>
-      <td>4</td>
-      <td>ADE40E7F</td>
-      <td>339001</td>
-      <td>7.15%</td>
-    </tr>
-    <tr>
-      <td>9</td>
-      <td>3329175B</td>
-      <td>338913</td>
-      <td>7.15%</td>
-    </tr>
-    <tr>
-      <td>8</td>
-      <td>86083278</td>
-      <td>338093</td>
-      <td>7.13%</td>
-    </tr>
-    <tr>
-      <td>1</td>
-      <td>5310B9D7</td>
-      <td>336410</td>
-      <td>7.1%</td>
-    </tr>
-    <tr>
-      <td>12</td>
-      <td>CF304D24</td>
-      <td>334196</td>
-      <td>7.05%</td>
-    </tr>
-    <tr>
-      <td>11</td>
-      <td>09C37FB8</td>
-      <td>333955</td>
-      <td>7.05%</td>
-    </tr>
-    <tr>
-      <td>7</td>
-      <td>E54B5C3A</td>
-      <td>332210</td>
-      <td>7.01%</td>
-    </tr>
-  </tbody>
-</table>
-                    <p style="margin-top: 15px; color: #666;">
-                        <strong>Equipment with most failures:</strong> 2C195700 (ID: 14) 
-                        with 343,141 failures.
-                    </p>
-                </div>
-            </div>
-                <!-- Question 3 -->
-            <div class="question">
-                <h2>3. Find the average amount of failures per asset across equipment groups, ordered by the total number of failures in ascending order.</h2>
-                <div class="answer">
-                    <table border="1" class="dataframe" id="q3-table">
-  <thead>
-    <tr style="text-align: right;">
-      <th>equipment_group</th>
-      <th>equipment_list</th>
-      <th>avg_failures</th>
-      <th>total_failures</th>
-      <th>percentage</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Z9K1SAP4</td>
-      <td>[13]</td>
-      <td>339925.0</td>
-      <td>339925</td>
-      <td>7.17%</td>
-    </tr>
-    <tr>
-      <td>PA92NCXZ</td>
-      <td>[6, 11]</td>
-      <td>338400.5</td>
-      <td>676801</td>
-      <td>14.28%</td>
-    </tr>
-    <tr>
-      <td>9N127Z5P</td>
-      <td>[4, 5]</td>
-      <td>339691.5</td>
-      <td>679383</td>
-      <td>14.33%</td>
-    </tr>
-    <tr>
-      <td>NQWPA8D3</td>
-      <td>[8, 10]</td>
-      <td>340140.0</td>
-      <td>680280</td>
-      <td>14.35%</td>
-    </tr>
-    <tr>
-      <td>VAPQY59S</td>
-      <td>[2, 9, 14]</td>
-      <td>340526.0</td>
-      <td>1021578</td>
-      <td>21.55%</td>
-    </tr>
-    <tr>
-      <td>FGHQWR2Q</td>
-      <td>[1, 3, 7, 12]</td>
-      <td>335580.5</td>
-      <td>1342322</td>
-      <td>28.32%</td>
-    </tr>
-  </tbody>
-</table>
-                </div>
-            </div>
-                <!-- Question 4 -->
-            <div class="question">
-                <h2>4. For each asset, rank the sensors which present the most number of failures, and also include the equipment group in the output.</h2>
-                <div class="answer">
-                    <table border="1" class="dataframe" id="q4-table">
-  <thead>
-    <tr style="text-align: right;">
-      <th>equipment_id</th>
-      <th>equipment_name</th>
-      <th>equipment_group</th>
-      <th>sensor_id</th>
-      <th>failures</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>1</td>
-      <td>5310B9D7</td>
-      <td>FGHQWR2Q</td>
-      <td>8917</td>
-      <td>574</td>
-    </tr>
-    <tr>
-      <td>1</td>
-      <td>5310B9D7</td>
-      <td>FGHQWR2Q</td>
-      <td>608</td>
-      <td>573</td>
-    </tr>
-    <tr>
-      <td>1</td>
-      <td>5310B9D7</td>
-      <td>FGHQWR2Q</td>
-      <td>7709</td>
-      <td>570</td>
-    </tr>
-    <tr>
-      <td>2</td>
-      <td>43B81579</td>
-      <td>VAPQY59S</td>
-      <td>1127</td>
-      <td>580</td>
-    </tr>
-    <tr>
-      <td>2</td>
-      <td>43B81579</td>
-      <td>VAPQY59S</td>
-      <td>2350</td>
-      <td>567</td>
-    </tr>
-    <tr>
-      <td>2</td>
-      <td>43B81579</td>
-      <td>VAPQY59S</td>
-      <td>2127</td>
-      <td>558</td>
-    </tr>
-    <tr>
-      <td>3</td>
-      <td>E1AD07D4</td>
-      <td>FGHQWR2Q</td>
-      <td>9349</td>
-      <td>604</td>
-    </tr>
-    <tr>
-      <td>3</td>
-      <td>E1AD07D4</td>
-      <td>FGHQWR2Q</td>
-      <td>2346</td>
-      <td>562</td>
-    </tr>
-    <tr>
-      <td>3</td>
-      <td>E1AD07D4</td>
-      <td>FGHQWR2Q</td>
-      <td>5422</td>
-      <td>560</td>
-    </tr>
-    <tr>
-      <td>4</td>
-      <td>ADE40E7F</td>
-      <td>9N127Z5P</td>
-      <td>4860</td>
-      <td>562</td>
-    </tr>
-    <tr>
-      <td>4</td>
-      <td>ADE40E7F</td>
-      <td>9N127Z5P</td>
-      <td>5685</td>
-      <td>556</td>
-    </tr>
-    <tr>
-      <td>4</td>
-      <td>ADE40E7F</td>
-      <td>9N127Z5P</td>
-      <td>9905</td>
-      <td>556</td>
-    </tr>
-    <tr>
-      <td>5</td>
-      <td>78FFAD0C</td>
-      <td>9N127Z5P</td>
-      <td>582</td>
-      <td>570</td>
-    </tr>
-    <tr>
-      <td>5</td>
-      <td>78FFAD0C</td>
-      <td>9N127Z5P</td>
-      <td>6261</td>
-      <td>561</td>
-    </tr>
-    <tr>
-      <td>5</td>
-      <td>78FFAD0C</td>
-      <td>9N127Z5P</td>
-      <td>1361</td>
-      <td>560</td>
-    </tr>
-    <tr>
-      <td>6</td>
-      <td>9AD15F7E</td>
-      <td>PA92NCXZ</td>
-      <td>8680</td>
-      <td>561</td>
-    </tr>
-    <tr>
-      <td>6</td>
-      <td>9AD15F7E</td>
-      <td>PA92NCXZ</td>
-      <td>91</td>
-      <td>560</td>
-    </tr>
-    <tr>
-      <td>6</td>
-      <td>9AD15F7E</td>
-      <td>PA92NCXZ</td>
-      <td>3988</td>
-      <td>556</td>
-    </tr>
-    <tr>
-      <td>7</td>
-      <td>E54B5C3A</td>
-      <td>FGHQWR2Q</td>
-      <td>7208</td>
-      <td>567</td>
-    </tr>
-    <tr>
-      <td>7</td>
-      <td>E54B5C3A</td>
-      <td>FGHQWR2Q</td>
-      <td>7462</td>
-      <td>560</td>
-    </tr>
-    <tr>
-      <td>7</td>
-      <td>E54B5C3A</td>
-      <td>FGHQWR2Q</td>
-      <td>1744</td>
-      <td>554</td>
-    </tr>
-    <tr>
-      <td>8</td>
-      <td>86083278</td>
-      <td>NQWPA8D3</td>
-      <td>8992</td>
-      <td>572</td>
-    </tr>
-    <tr>
-      <td>8</td>
-      <td>86083278</td>
-      <td>NQWPA8D3</td>
-      <td>782</td>
-      <td>562</td>
-    </tr>
-    <tr>
-      <td>8</td>
-      <td>86083278</td>
-      <td>NQWPA8D3</td>
-      <td>6400</td>
-      <td>551</td>
-    </tr>
-    <tr>
-      <td>9</td>
-      <td>3329175B</td>
-      <td>VAPQY59S</td>
-      <td>5162</td>
-      <td>567</td>
-    </tr>
-    <tr>
-      <td>9</td>
-      <td>3329175B</td>
-      <td>VAPQY59S</td>
-      <td>6638</td>
-      <td>566</td>
-    </tr>
-    <tr>
-      <td>9</td>
-      <td>3329175B</td>
-      <td>VAPQY59S</td>
-      <td>5635</td>
-      <td>564</td>
-    </tr>
-    <tr>
-      <td>10</td>
-      <td>98B84035</td>
-      <td>NQWPA8D3</td>
-      <td>4990</td>
-      <td>582</td>
-    </tr>
-    <tr>
-      <td>10</td>
-      <td>98B84035</td>
-      <td>NQWPA8D3</td>
-      <td>9777</td>
-      <td>582</td>
-    </tr>
-    <tr>
-      <td>10</td>
-      <td>98B84035</td>
-      <td>NQWPA8D3</td>
-      <td>6868</td>
-      <td>571</td>
-    </tr>
-    <tr>
-      <td>11</td>
-      <td>09C37FB8</td>
-      <td>PA92NCXZ</td>
-      <td>9400</td>
-      <td>577</td>
-    </tr>
-    <tr>
-      <td>11</td>
-      <td>09C37FB8</td>
-      <td>PA92NCXZ</td>
-      <td>1358</td>
-      <td>573</td>
-    </tr>
-    <tr>
-      <td>11</td>
-      <td>09C37FB8</td>
-      <td>PA92NCXZ</td>
-      <td>8631</td>
-      <td>563</td>
-    </tr>
-    <tr>
-      <td>12</td>
-      <td>CF304D24</td>
-      <td>FGHQWR2Q</td>
-      <td>9343</td>
-      <td>566</td>
-    </tr>
-    <tr>
-      <td>12</td>
-      <td>CF304D24</td>
-      <td>FGHQWR2Q</td>
-      <td>2835</td>
-      <td>565</td>
-    </tr>
-    <tr>
-      <td>12</td>
-      <td>CF304D24</td>
-      <td>FGHQWR2Q</td>
-      <td>4342</td>
-      <td>562</td>
-    </tr>
-    <tr>
-      <td>13</td>
-      <td>4E834E81</td>
-      <td>Z9K1SAP4</td>
-      <td>6639</td>
-      <td>573</td>
-    </tr>
-    <tr>
-      <td>13</td>
-      <td>4E834E81</td>
-      <td>Z9K1SAP4</td>
-      <td>1566</td>
-      <td>566</td>
-    </tr>
-    <tr>
-      <td>13</td>
-      <td>4E834E81</td>
-      <td>Z9K1SAP4</td>
-      <td>9358</td>
-      <td>565</td>
-    </tr>
-    <tr>
-      <td>14</td>
-      <td>2C195700</td>
-      <td>VAPQY59S</td>
-      <td>7966</td>
-      <td>575</td>
-    </tr>
-    <tr>
-      <td>14</td>
-      <td>2C195700</td>
-      <td>VAPQY59S</td>
-      <td>5266</td>
-      <td>567</td>
-    </tr>
-    <tr>
-      <td>14</td>
-      <td>2C195700</td>
-      <td>VAPQY59S</td>
-      <td>2281</td>
-      <td>563</td>
-    </tr>
-  </tbody>
-</table>
-                    <p style="margin-top: 15px; color: #666;">
-                        <em>Showing the top 3 sensors with most failures for each equipment.</em>
-                    </p>
-                </div>
-            </div>
-            </div>
-        
-            
+    """
+
+    def _generate_footer(self) -> str:
+        """Generate the report footer."""
+        timestamp = datetime.now().strftime('%B %d, %Y, at %I:%M:%S %p')
+        return f"""
                 <div class="footer">
                     <p>Generated by: Matheus Bragança</p>
-                    <p>Generated on: December 19, 2025, at 08:30:07 AM</p>
+                    <p>Generated on: {timestamp}</p>
                 </div>
             </div>
         
                 <script>
-                    function showPage(pageId) {
+                    function showPage(pageId) {{
                         // Hide all pages
-                        document.querySelectorAll('.page').forEach(page => {
+                        document.querySelectorAll('.page').forEach(page => {{
                             page.classList.remove('active');
-                        });
+                        }});
                         
                         // Remove active class from all tabs
-                        document.querySelectorAll('.nav-tab').forEach(tab => {
+                        document.querySelectorAll('.nav-tab').forEach(tab => {{
                             tab.classList.remove('active');
-                        });
+                        }});
                         
                         // Show selected page
                         document.getElementById(pageId + '-page').classList.add('active');
                         
                         // Add active class to clicked tab
                         event.target.classList.add('active');
-                    }
+                    }}
                 </script>
         </body>
         </html>
+    """
     
+    def _generate_analysis(self) -> str:
+        """Generate the analysis section with all questions."""
+        q1_html = self._format_question_1(self.analysis["q1_result"])
+        q2_html = self._format_question_2(self.analysis["q2_result"])
+        q3_html = self._format_question_3(self.analysis["q3_result"])
+        q4_html = self._format_question_4(self.analysis["q4_result"])
         
+        return f"""
+        <!-- Analysis Report Page -->
+            <div id="analysis-page" class="page">
+                {q1_html}
+                {q2_html}
+                {q3_html}
+                {q4_html}
+            </div>
+        """
+    
+    def _format_question_1(self, q1_result: dict) -> str:
+        """Format failure count results."""
+        total = q1_result["v1"]
+        unique = q1_result["v2"]
+        return f"""<!-- Question 1 -->
+            <div class="question">
+                <h2>1. How many equipment failures happened?</h2>
+                <div class="answer">
+                    <div class="answer-numbers-container">
+                        <div class="answer-number-box">
+                            <div class="answer-number">{total:,}</div>
+                            <div class="answer-number-label">Total failures</div>
+                        </div>
+                        <div class="answer-number-box">
+                            <div class="answer-number">{unique:,}</div>
+                            <div class="answer-number-label">Total equipment failures<br>(unique events per equipment and timestamp)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>"""
+    
+    def _format_question_2(self, q2_result: pd.DataFrame) -> str:
+        """Format equipment ranking results."""
+        top_equipment = q2_result.iloc[0]
+        return f"""<!-- Question 2 -->
+            <div class="question">
+                <h2>2. Which piece of equipment had most failures?</h2>
+                <div class="answer">
+                    {q2_result.to_html(index=False, classes='', table_id='q2-table', escape=False)}
+                    <p style="margin-top: 15px; color: #666;">
+                        <strong>Equipment with most failures:</strong> {top_equipment['equipment_name']} (ID: {top_equipment['equipment_id']}) 
+                        with {top_equipment['failures']:,} failures.
+                    </p>
+                </div>
+            </div>"""
+    
+    def _format_question_3(self, q3_result: pd.DataFrame) -> str:
+        """Format group statistics results."""
+        return f"""<!-- Question 3 -->
+            <div class="question">
+                <h2>3. Find the average amount of failures per asset across equipment groups, ordered by the total number of failures in ascending order.</h2>
+                <div class="answer">
+                    {q3_result.to_html(index=False, classes='', table_id='q3-table', escape=False)}
+                </div>
+            </div>"""
+    
+    def _format_question_4(self, q4_result: pd.DataFrame) -> str:
+        """Format sensor ranking results."""
+        return f"""<!-- Question 4 -->
+            <div class="question">
+                <h2>4. For each asset, rank the sensors which present the most number of failures, and also include the equipment group in the output.</h2>
+                <div class="answer">
+                    {q4_result.to_html(index=False, classes='', table_id='q4-table', escape=False)}
+                    <p style="margin-top: 15px; color: #666;">
+                        <em>Showing the top 3 sensors with most failures for each equipment.</em>
+                    </p>
+                </div>
+            </div>"""
